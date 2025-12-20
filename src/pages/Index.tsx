@@ -1,9 +1,18 @@
 import { useState } from "react";
 import { ResumeUpload } from "@/components/ResumeUpload";
-import { FileSearch } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { FileSearch, Sparkles } from "lucide-react";
+
+const MIN_JD_LENGTH = 100;
 
 const Index = () => {
   const [resumeText, setResumeText] = useState<string>("");
+  const [jobDescription, setJobDescription] = useState<string>("");
+
+  const isResumeUploaded = resumeText.length > 0;
+  const isJdValid = jobDescription.length >= MIN_JD_LENGTH;
+  const canAnalyze = isResumeUploaded && isJdValid;
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,6 +37,7 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container max-w-4xl mx-auto px-4 py-12">
+        {/* Resume Upload Section */}
         <div className="text-center mb-10">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
             Upload Your Resume
@@ -49,6 +59,58 @@ const Index = () => {
             </div>
           </div>
         )}
+
+        {/* Job Description Section */}
+        <div className="mt-16">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+              Job Description
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Paste the job description you want to match your resume against.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <Textarea
+              placeholder="Paste job description here..."
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              className="min-h-[200px] resize-y text-sm"
+            />
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">
+                {jobDescription.length} characters
+              </span>
+              {jobDescription.length > 0 && !isJdValid && (
+                <span className="text-destructive">
+                  Please enter at least {MIN_JD_LENGTH} characters
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Analyze Button */}
+        <div className="mt-12 text-center">
+          <Button
+            size="lg"
+            disabled={!canAnalyze}
+            className="px-8"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Analyze Match
+          </Button>
+          {!canAnalyze && (
+            <p className="mt-3 text-sm text-muted-foreground">
+              {!isResumeUploaded && !isJdValid
+                ? "Upload a resume and enter a job description to analyze"
+                : !isResumeUploaded
+                ? "Upload a resume to continue"
+                : "Enter at least 100 characters in the job description"}
+            </p>
+          )}
+        </div>
       </main>
     </div>
   );
