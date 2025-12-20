@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import * as pdfjsLib from "pdfjs-dist";
 
 // Set up the worker for PDF.js
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
