@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileSearch, Sparkles, Building2, Loader2, CheckCircle2 } from "lucide-react";
+import { FileSearch, Sparkles, Building2, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -12,7 +12,7 @@ const MIN_JD_LENGTH = 100;
 
 interface AnalysisResult {
   matchedSkills: string[];
-  analysis_id: string;
+  missingSkills: string[];
 }
 
 const Index = () => {
@@ -61,7 +61,7 @@ const Index = () => {
       setAnalysisResult(data);
       toast({
         title: "Analysis Complete",
-        description: `Found ${data.matchedSkills?.length || 0} matched skills`,
+        description: `Found ${data.matchedSkills?.length || 0} matched skills, ${data.missingSkills?.length || 0} missing skills`,
       });
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -206,7 +206,8 @@ const Index = () => {
 
         {/* Results Section */}
         {analysisResult && (
-          <div className="mt-12">
+          <div className="mt-12 space-y-6">
+            {/* Matched Skills Card */}
             <Card className="border-success/30 bg-success/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-success">
@@ -230,6 +231,35 @@ const Index = () => {
                   <p className="text-muted-foreground">
                     No exact skill matches found between your resume and the job description.
                   </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Missing Skills Card */}
+            <Card className="border-destructive/30 bg-destructive/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-destructive">
+                  <AlertTriangle className="w-5 h-5" />
+                  Missing Skills
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {analysisResult.missingSkills && analysisResult.missingSkills.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {analysisResult.missingSkills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 text-sm font-medium rounded-full bg-destructive/20 text-destructive border border-destructive/30"
+                      >
+                        ⚠️ {skill}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-success">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <p className="font-medium">Great job! No key skills missing.</p>
+                  </div>
                 )}
               </CardContent>
             </Card>

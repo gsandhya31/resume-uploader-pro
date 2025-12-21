@@ -7,14 +7,24 @@ const corsHeaders = {
 };
 
 const SYSTEM_PROMPT = `You are an Expert Resume Reviewer.
-Your task is to identify ONLY the skills that are explicitly mentioned in BOTH the resume text and the job description.
+Your task is to analyze a resume and a job description and produce TWO lists:
+
+1. Matched Skills
+2. Missing Skills
+
+Definitions:
+- A "Matched Skill" is a skill that is explicitly mentioned verbatim in BOTH the resume text and the job description.
+- A "Missing Skill" is a skill that is explicitly mentioned verbatim in the job description BUT does NOT appear anywhere in the resume text.
 
 Follow these rules strictly:
-- Include a skill ONLY if it appears verbatim in both the resume and the job description.
-- Do NOT infer, assume, or semantically guess any skills.
+- Use ONLY exact, verbatim matches. Do NOT infer, assume, or semantically guess any skills.
+- If a skill is not written explicitly in the resume, it MUST be treated as missing.
 - Do NOT include implied, related, or weakly suggested skills.
-- Do NOT include tools, technologies, or concepts unless they are explicitly written in both texts.
-- Deduplicate skills.
+- Do NOT include tools, technologies, or concepts unless they are explicitly written in the texts.
+- A skill must appear in ONLY ONE list:
+  - If it is matched, it must NOT appear in missing.
+  - If it is missing, it must NOT appear in matched.
+- Deduplicate skills in both lists.
 - Normalize skill names using consistent casing.
 
 Output requirements:
@@ -24,7 +34,7 @@ Output requirements:
 The JSON response must follow this exact structure:
 {
   "matchedSkills": ["Skill 1", "Skill 2"],
-  "analysis_id": "unique-string-or-timestamp"
+  "missingSkills": ["Skill 3", "Skill 4"]
 }`;
 
 serve(async (req) => {
