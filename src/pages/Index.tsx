@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { ResumeUpload } from "@/components/ResumeUpload";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { FileSearch, Sparkles } from "lucide-react";
+import { FileSearch, Sparkles, Building2 } from "lucide-react";
 
 const MIN_JD_LENGTH = 100;
 
 const Index = () => {
   const [resumeText, setResumeText] = useState<string>("");
   const [jobDescription, setJobDescription] = useState<string>("");
+  const [companyName, setCompanyName] = useState<string>("");
 
   const isResumeUploaded = resumeText.length > 0;
   const isJdValid = jobDescription.length >= MIN_JD_LENGTH;
@@ -88,6 +90,27 @@ const Index = () => {
                 </span>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Company Name Section */}
+        <div className="mt-10">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium text-foreground">
+                Target Company Name (Optional)
+              </label>
+            </div>
+            <Input
+              placeholder="e.g., Google, Meta, Stripe..."
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              className="max-w-md"
+            />
+            <p className="text-xs text-muted-foreground">
+              Enter company name to get LinkedIn networking suggestions.
+            </p>
           </div>
         </div>
 
