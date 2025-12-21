@@ -3,18 +3,77 @@ import { ResumeUpload } from "@/components/ResumeUpload";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { FileSearch, Sparkles, Building2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FileSearch, Sparkles, Building2, Loader2, CheckCircle2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const MIN_JD_LENGTH = 100;
+
+interface AnalysisResult {
+  matchedSkills: string[];
+  analysis_id: string;
+}
 
 const Index = () => {
   const [resumeText, setResumeText] = useState<string>("");
   const [jobDescription, setJobDescription] = useState<string>("");
   const [companyName, setCompanyName] = useState<string>("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const { toast } = useToast();
 
   const isResumeUploaded = resumeText.length > 0;
   const isJdValid = jobDescription.length >= MIN_JD_LENGTH;
-  const canAnalyze = isResumeUploaded && isJdValid;
+  const canAnalyze = isResumeUploaded && isJdValid && !isAnalyzing;
+
+  const handleAnalyze = async () => {
+    console.log("Request sent: Starting analysis...");
+    setIsAnalyzing(true);
+    setAnalysisResult(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-resume', {
+        body: { resumeText, jobDescription, companyName }
+      });
+
+      console.log("Response received:", data);
+
+      if (error) {
+        console.error("Analysis error:", error);
+        toast({
+          title: "Analysis Failed",
+          description: error.message || "Failed to analyze resume",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data.error) {
+        toast({
+          title: "Analysis Error",
+          description: data.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAnalysisResult(data);
+      toast({
+        title: "Analysis Complete",
+        description: `Found ${data.matchedSkills?.length || 0} matched skills`,
+      });
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,12 +178,22 @@ const Index = () => {
           <Button
             size="lg"
             disabled={!canAnalyze}
+            onClick={handleAnalyze}
             className="px-8"
           >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Analyze Match
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Analyze Match
+              </>
+            )}
           </Button>
-          {!canAnalyze && (
+          {!canAnalyze && !isAnalyzing && (
             <p className="mt-3 text-sm text-muted-foreground">
               {!isResumeUploaded && !isJdValid
                 ? "Upload a resume and enter a job description to analyze"
@@ -134,6 +203,38 @@ const Index = () => {
             </p>
           )}
         </div>
+
+        {/* Results Section */}
+        {analysisResult && (
+          <div className="mt-12">
+            <Card className="border-success/30 bg-success/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-success">
+                  <CheckCircle2 className="w-5 h-5" />
+                  Matched Skills
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {analysisResult.matchedSkills.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {analysisResult.matchedSkills.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 text-sm font-medium rounded-full bg-success/20 text-success border border-success/30"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground">
+                    No exact skill matches found between your resume and the job description.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </main>
     </div>
   );
