@@ -122,10 +122,11 @@ export function ResumeUpload({ onTextExtracted }: ResumeUploadProps) {
   const handleRemove = useCallback(() => {
     setFile(null);
     setResumeText("");
+    onTextExtracted?.("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  }, []);
+  }, [onTextExtracted]);
 
   const handleButtonClick = useCallback(() => {
     fileInputRef.current?.click();
