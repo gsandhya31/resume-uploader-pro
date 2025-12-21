@@ -189,7 +189,7 @@ const Index = () => {
             ) : (
               <>
                 <Sparkles className="w-4 h-4 mr-2" />
-                Analyze Match
+                Analyze Resume
               </>
             )}
           </Button>
