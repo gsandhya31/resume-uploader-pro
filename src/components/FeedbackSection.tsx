@@ -30,13 +30,9 @@ const FeedbackSection = ({ onSubmitSuccess }: FeedbackSectionProps) => {
     setIsSubmitting(true);
 
     try {
-      // Using rpc workaround until types are regenerated
       const { error } = await (supabase as any)
         .from('analysis_feedback')
-        .insert([{
-          rating,
-          comment: comment.trim() || null,
-        }]);
+        .insert([{ rating: rating, comment: comment }]);
 
       if (error) {
         throw error;
