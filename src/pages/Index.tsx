@@ -10,10 +10,27 @@ import { useToast } from "@/hooks/use-toast";
 
 const MIN_JD_LENGTH = 100;
 
+interface TokenUsage {
+  input: number;
+  output: number;
+  total: number;
+}
+
 interface AnalysisResult {
   matchedSkills: string[];
   missingSkills: string[];
+  usage?: TokenUsage;
 }
+
+// GPT-4o-mini pricing: $0.15/1M input, $0.60/1M output
+// 1 USD = 85 INR
+const calculateCostINR = (usage: TokenUsage): string => {
+  const inputCostUSD = (usage.input / 1_000_000) * 0.15;
+  const outputCostUSD = (usage.output / 1_000_000) * 0.60;
+  const totalCostUSD = inputCostUSD + outputCostUSD;
+  const totalCostINR = totalCostUSD * 85;
+  return totalCostINR.toFixed(4);
+};
 
 const Index = () => {
   const [resumeText, setResumeText] = useState<string>("");
@@ -278,6 +295,15 @@ const Index = () => {
             <p className="mt-6 text-xs text-muted-foreground text-center">
               Note: AI can make mistakes. Please double-check the results against the actual job description.
             </p>
+
+            {/* Metrics Panel */}
+            {analysisResult.usage && (
+              <div className="mt-4 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Tokens: {analysisResult.usage.input} in / {analysisResult.usage.output} out / {analysisResult.usage.total} total | Est. Cost: ₹{calculateCostINR(analysisResult.usage)}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </main>

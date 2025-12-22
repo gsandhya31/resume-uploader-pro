@@ -132,10 +132,19 @@ Analyze the above and return the matched skills as JSON.`;
       );
     }
 
+    // Extract token usage from OpenAI response
+    const usage = data.usage;
+    const usageData = usage ? {
+      input: usage.prompt_tokens,
+      output: usage.completion_tokens,
+      total: usage.total_tokens
+    } : null;
+
+    console.log("Token usage:", usageData);
     console.log("Returning result:", result);
 
     return new Response(
-      JSON.stringify(result),
+      JSON.stringify({ ...result, usage: usageData }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
