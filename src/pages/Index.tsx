@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileSearch, Sparkles, Building2, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
+import FeedbackSection from "@/components/FeedbackSection";
 
 const MIN_JD_LENGTH = 100;
 
@@ -304,6 +305,9 @@ const Index = () => {
                 </p>
               </div>
             )}
+
+            {/* Feedback Section */}
+            <FeedbackSection />
           </div>
         )}
       </main>
