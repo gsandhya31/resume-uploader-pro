@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileSearch, Sparkles, Building2, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
+import { FileSearch, Sparkles, Building2, Loader2, CheckCircle2, AlertTriangle, Lightbulb, Copy, Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import FeedbackSection from "@/components/FeedbackSection";
@@ -17,9 +17,15 @@ interface TokenUsage {
   total: number;
 }
 
+interface RewriteSuggestion {
+  original_text: string;
+  suggested_rewrite: string;
+}
+
 interface AnalysisResult {
   matchedSkills: string[];
   missingSkills: string[];
+  rewrite_suggestions?: RewriteSuggestion[];
   usage?: TokenUsage;
 }
 
@@ -39,8 +45,27 @@ const Index = () => {
   const [companyName, setCompanyName] = useState<string>("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const { toast } = useToast();
   const resultsRef = useRef<HTMLDivElement>(null);
+
+  const handleCopySuggestion = async (text: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIndex(index);
+      toast({
+        title: "Copied!",
+        description: "Suggestion copied to clipboard",
+      });
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (err) {
+      toast({
+        title: "Copy failed",
+        description: "Could not copy to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Auto-scroll to results when analysis is complete
   useEffect(() => {
@@ -286,6 +311,60 @@ const Index = () => {
                     <div className="flex items-center gap-2 text-success">
                       <CheckCircle2 className="w-4 h-4" />
                       <p className="font-medium text-sm">Great job! No key skills missing.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Suggested Improvements Section */}
+            <div className="mt-8">
+              <Card className="border-primary/30 bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-primary">
+                    <Lightbulb className="w-5 h-5" />
+                    Suggested Improvements
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {analysisResult.rewrite_suggestions && analysisResult.rewrite_suggestions.length > 0 ? (
+                    <div className="space-y-4">
+                      {analysisResult.rewrite_suggestions.map((suggestion, index) => (
+                        <div key={index} className="p-4 rounded-lg bg-background border border-border">
+                          <div className="mb-3">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Original</span>
+                            <p className="mt-1 text-sm text-muted-foreground italic">
+                              "{suggestion.original_text}"
+                            </p>
+                          </div>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <span className="text-xs font-medium text-primary uppercase tracking-wide">Suggestion</span>
+                              <p className="mt-1 text-sm text-foreground font-medium">
+                                "{suggestion.suggested_rewrite}"
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCopySuggestion(suggestion.suggested_rewrite, index)}
+                              className="shrink-0 h-8 w-8 p-0"
+                              aria-label="Copy suggestion"
+                            >
+                              {copiedIndex === index ? (
+                                <Check className="w-4 h-4 text-success" />
+                              ) : (
+                                <Copy className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-success">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <p className="font-medium text-sm">Your resume language already aligns well with this JD.</p>
                     </div>
                   )}
                 </CardContent>
