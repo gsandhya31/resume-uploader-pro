@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileSearch, Sparkles, Building2, Loader2, CheckCircle2, AlertTriangle, Lightbulb, Copy, Check } from "lucide-react";
+import { FileSearch, Sparkles, Building2, Loader2, CheckCircle2, AlertTriangle, Lightbulb, Copy, Check, Info } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import FeedbackSection from "@/components/FeedbackSection";
@@ -22,10 +22,17 @@ interface RewriteSuggestion {
   suggested_rewrite: string;
 }
 
+interface AnalysisNote {
+  type: "ambiguity" | "warning";
+  text: string;
+  note: string;
+}
+
 interface AnalysisResult {
   matchedSkills: string[];
   missingSkills: string[];
   rewrite_suggestions?: RewriteSuggestion[];
+  analysis_notes?: AnalysisNote[];
   usage?: TokenUsage;
 }
 
@@ -262,6 +269,33 @@ const Index = () => {
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-center">
               Analysis Results
             </h2>
+
+            {/* Analysis Notes Banner */}
+            {analysisResult.analysis_notes && analysisResult.analysis_notes.length > 0 ? (
+              <div className="mb-6 p-4 rounded-lg border border-yellow-500/30 bg-yellow-500/10">
+                <div className="flex items-center gap-2 mb-3">
+                  <Info className="w-5 h-5 text-yellow-600" />
+                  <h3 className="font-semibold text-yellow-700 dark:text-yellow-500">
+                    ⚠️ Analysis Notes: {analysisResult.analysis_notes.length} item{analysisResult.analysis_notes.length > 1 ? 's' : ''} need your attention
+                  </h3>
+                </div>
+                <div className="space-y-3">
+                  {analysisResult.analysis_notes.map((note, index) => (
+                    <div key={index} className="pl-7 text-sm">
+                      <span className="font-bold text-foreground">"{note.text}"</span>
+                      <span className="text-muted-foreground"> — {note.note}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="mb-6 p-4 rounded-lg border border-success/30 bg-success/10">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-success" />
+                  <span className="font-medium text-success">✅ Analysis completed with high confidence.</span>
+                </div>
+              </div>
+            )}
 
             {/* Side-by-Side Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
