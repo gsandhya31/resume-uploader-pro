@@ -3,13 +3,11 @@ import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FeedbackSectionProps {
   onSubmitSuccess?: () => void;
 }
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 const FeedbackSection = ({ onSubmitSuccess }: FeedbackSectionProps) => {
   const [rating, setRating] = useState<number>(0);
@@ -32,22 +30,16 @@ const FeedbackSection = ({ onSubmitSuccess }: FeedbackSectionProps) => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/analysis_feedback`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-          "Prefer": "return=minimal",
-        },
-        body: JSON.stringify({
+      // Using rpc workaround until types are regenerated
+      const { error } = await (supabase as any)
+        .from('analysis_feedback')
+        .insert([{
           rating,
           comment: comment.trim() || null,
-        }),
-      });
+        }]);
 
-      if (!response.ok) {
-        throw new Error("Failed to submit feedback");
+      if (error) {
+        throw error;
       }
 
       toast({
