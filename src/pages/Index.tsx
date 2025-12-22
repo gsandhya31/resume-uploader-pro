@@ -297,7 +297,10 @@ const Index = () => {
               Note: AI can make mistakes. Please double-check the results against the actual job description.
             </p>
 
-            {/* Metrics Panel */}
+            {/* Feedback Section */}
+            <FeedbackSection />
+
+            {/* Metrics Panel - Footer */}
             {analysisResult.usage && (
               <div className="mt-4 text-center">
                 <p className="text-xs text-muted-foreground">
@@ -305,9 +308,6 @@ const Index = () => {
                 </p>
               </div>
             )}
-
-            {/* Feedback Section */}
-            <FeedbackSection />
           </div>
         )}
       </main>
