@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ResumeUpload } from "@/components/ResumeUpload";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,14 @@ const Index = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const { toast } = useToast();
+  const resultsRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to results when analysis is complete
+  useEffect(() => {
+    if (analysisResult && resultsRef.current) {
+      resultsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [analysisResult]);
 
   const isResumeUploaded = resumeText.length > 0;
   const isJdValid = jobDescription.length >= MIN_JD_LENGTH;
@@ -206,63 +214,70 @@ const Index = () => {
 
         {/* Results Section */}
         {analysisResult && (
-          <div className="mt-12 space-y-6">
-            {/* Matched Skills Card */}
-            <Card className="border-success/30 bg-success/5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-success">
-                  <CheckCircle2 className="w-5 h-5" />
-                  Matched Skills
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {analysisResult.matchedSkills.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {analysisResult.matchedSkills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 text-sm font-medium rounded-full bg-success/20 text-success border border-success/30"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">
-                    No exact skill matches found between your resume and the job description.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+          <div ref={resultsRef} className="mt-16 scroll-mt-4">
+            {/* Section Heading */}
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-center">
+              Analysis Results
+            </h2>
 
-            {/* Missing Skills Card */}
-            <Card className="border-destructive/30 bg-destructive/5">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-destructive">
-                  <AlertTriangle className="w-5 h-5" />
-                  Missing Skills
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {analysisResult.missingSkills && analysisResult.missingSkills.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {analysisResult.missingSkills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 text-sm font-medium rounded-full bg-destructive/20 text-destructive border border-destructive/30"
-                      >
-                        ⚠️ {skill}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-success">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <p className="font-medium">Great job! No key skills missing.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {/* Side-by-Side Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Matched Skills Card */}
+              <Card className="border-success/30 bg-success/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-success">
+                    <CheckCircle2 className="w-5 h-5" />
+                    Matched Skills
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {analysisResult.matchedSkills.length > 0 ? (
+                    <ol className="list-decimal list-inside space-y-2 text-foreground">
+                      {analysisResult.matchedSkills.map((skill, index) => (
+                        <li key={index} className="text-sm">
+                          {skill}
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="text-muted-foreground text-sm">
+                      No exact skill matches found between your resume and the job description.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Missing Skills Card */}
+              <Card className="border-destructive/30 bg-destructive/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-destructive">
+                    <AlertTriangle className="w-5 h-5" />
+                    Missing Skills
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {analysisResult.missingSkills && analysisResult.missingSkills.length > 0 ? (
+                    <ol className="list-decimal list-inside space-y-2 text-foreground">
+                      {analysisResult.missingSkills.map((skill, index) => (
+                        <li key={index} className="text-sm">
+                          {skill}
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <div className="flex items-center gap-2 text-success">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <p className="font-medium text-sm">Great job! No key skills missing.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Safety Disclaimer */}
+            <p className="mt-6 text-xs text-muted-foreground text-center">
+              Note: AI can make mistakes. Please double-check the results against the actual job description.
+            </p>
           </div>
         )}
       </main>
