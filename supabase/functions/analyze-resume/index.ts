@@ -123,6 +123,7 @@ Analyze the above and return the matched skills as JSON.`;
       },
       body: JSON.stringify({
         model: MODEL,
+        temperature: 0,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userPrompt }
