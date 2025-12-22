@@ -30,13 +30,18 @@ const FeedbackSection = ({ onSubmitSuccess }: FeedbackSectionProps) => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from('analysis_feedback')
-        .insert([{ rating: rating, comment: comment }]);
+      console.log("Attempting to submit to app_feedback...", { rating, comment });
+
+      const { data, error } = await supabase
+        .from("app_feedback")
+        .insert([{ rating, comment }]);
 
       if (error) {
+        console.error("Supabase insert error (FULL):", error);
         throw error;
       }
+
+      console.log("Feedback submitted successfully:", data);
 
       toast({
         title: "Thank you!",
@@ -45,8 +50,8 @@ const FeedbackSection = ({ onSubmitSuccess }: FeedbackSectionProps) => {
 
       setIsSubmitted(true);
       onSubmitSuccess?.();
-    } catch (error: any) {
-      console.error("Feedback submission error:", error);
+    } catch (error: unknown) {
+      console.error("Feedback submission error (FULL):", error);
       toast({
         title: "Submission failed",
         description: "Could not submit feedback. Please try again later.",
@@ -73,7 +78,6 @@ const FeedbackSection = ({ onSubmitSuccess }: FeedbackSectionProps) => {
         Rate this Analysis
       </h3>
 
-      {/* Star Rating */}
       <div className="flex justify-center gap-1 mb-2">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
@@ -96,13 +100,11 @@ const FeedbackSection = ({ onSubmitSuccess }: FeedbackSectionProps) => {
         ))}
       </div>
 
-      {/* Rating Labels */}
       <div className="flex justify-between text-xs text-muted-foreground mb-4 px-2">
         <span>1 = Low quality</span>
         <span>5 = High quality</span>
       </div>
 
-      {/* Comment Textarea */}
       <Textarea
         placeholder="Any comments or bugs?"
         value={comment}
@@ -111,7 +113,6 @@ const FeedbackSection = ({ onSubmitSuccess }: FeedbackSectionProps) => {
         rows={2}
       />
 
-      {/* Submit Button */}
       <Button
         onClick={handleSubmit}
         disabled={isSubmitting || rating === 0}
