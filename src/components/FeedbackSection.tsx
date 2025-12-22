@@ -78,31 +78,32 @@ const FeedbackSection = ({ onSubmitSuccess }: FeedbackSectionProps) => {
         Rate this Analysis
       </h3>
 
-      <div className="flex justify-center gap-1 mb-2">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            onClick={() => setRating(star)}
-            onMouseEnter={() => setHoveredRating(star)}
-            onMouseLeave={() => setHoveredRating(0)}
-            className="p-1 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-            aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
-          >
-            <Star
-              className={`h-6 w-6 transition-colors ${
-                star <= (hoveredRating || rating)
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "text-muted-foreground"
-              }`}
-            />
-          </button>
-        ))}
-      </div>
-
-      <div className="flex justify-between text-xs text-muted-foreground mb-4 px-2">
-        <span>1 = Low quality</span>
-        <span>5 = High quality</span>
+      <div className="flex flex-col items-center mb-4">
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => setRating(star)}
+              onMouseEnter={() => setHoveredRating(star)}
+              onMouseLeave={() => setHoveredRating(0)}
+              className="p-1 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+              aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
+            >
+              <Star
+                className={`h-6 w-6 transition-colors ${
+                  star <= (hoveredRating || rating)
+                    ? "fill-yellow-400 text-yellow-400"
+                    : "text-muted-foreground"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+        <div className="flex justify-between w-[168px] text-[10px] text-gray-400 mt-1">
+          <span>1 = Low</span>
+          <span>5 = High</span>
+        </div>
       </div>
 
       <Textarea
