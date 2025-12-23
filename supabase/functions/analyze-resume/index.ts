@@ -53,6 +53,16 @@ serve(async (req) => {
   }
 
   try {
+    // 2. Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error("No authorization header provided");
+      return new Response(
+        JSON.stringify({ error: "Unauthorized - Authentication required" }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { resumeText, jobDescription, companyName } = await req.json();
     
     const MODEL = "gpt-4o-mini";
