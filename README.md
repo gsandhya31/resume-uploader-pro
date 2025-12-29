@@ -1,73 +1,65 @@
-# Welcome to your Lovable project
+# Resume-JD Matcher
 
-## Project info
+AI-powered tool to analyze resume alignment with job descriptions.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Demo
+[Live Link] | [Video Walkthrough]
 
-## How can I edit this code?
+## Product Overview
+- **Problem**: Job seekers don't know which skills to emphasize
+- **Solution**: AI-powered skill gap analysis with actionable insights
+- **Impact**: Helps users optimize resumes for specific roles
 
-There are several ways of editing your application.
+## Key Features
+- Intelligent skill matching (semantic + strict)
+- Must-have vs optional skill categorization
+- Weak skill detection with improvement guidance
+- Real-time analysis in <15 seconds
 
-**Use Lovable**
+## Technical Stack
+- Frontend: React, TypeScript, Tailwind CSS (built with Lovable)
+- Backend: Supabase Edge Functions
+- AI: OpenAI GPT-4o with custom prompt engineering
+- Deployment: Vercel + Supabase
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## AI Product Management Highlights
+- Comprehensive PRD with user stories
+- Strategic MVP scoping decisions
+- Prompt engineering for nuanced analysis
+- Extensive testing with synthetic data
 
-Changes made via Lovable will be committed automatically to this repo.
+## Architecture Decisions
+[Explain single API call vs pipeline approach]
+[Discuss prompt engineering strategy]
+[Show sample input/output]
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## Future Roadmap
+[List US-8/9 and beyond]
 ```
 
-**Edit a file directly in GitHub**
+### LinkedIn Post Template
+```
+🚀 Just shipped my Resume-JD Matcher MVP!
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+As an AI Product Manager, I wanted to showcase my skills by building something practical.
 
-**Use GitHub Codespaces**
+🎯 What it does:
+Analyzes your resume against any job description and tells you:
+- Which skills match (with evidence from your resume)
+- Which skills are weakly represented
+- Critical missing must-have skills
+- Optional nice-to-have skills
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+🤖 Technical approach:
+Built using GPT-4o with carefully engineered prompts that:
+✅ Understand "React.js" = "React" (semantic matching)
+✅ Distinguish C++ ≠ C (strict language matching)
+✅ Detect weak representations ("Worked with AWS" vs "Built AWS infrastructure serving 1M users")
 
-## What technologies are used for this project?
+💡 Key PM insight:
+Instead of just showing matched/missing skills, I focused on ACTIONABILITY - telling users exactly WHY a skill is weak and HOW to improve it.
 
-This project is built with:
+Try it: [link]
+Code: [GitHub link]
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+#ProductManagement #AI #CareerTools #JobSearch
