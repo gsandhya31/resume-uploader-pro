@@ -3,6 +3,9 @@
 AI-powered tool to analyze resume alignment with job descriptions.
 
 ## Demo
+For MVP1.0(earlier version ) : 
+Link : https://resume-sparkle-uploade.lovable.app/
+	•	Watch my 90-second walkthrough: https://youtu.be/VM36UPzr5vg 
 [Live Link] | [Video Walkthrough]
 
 ## Product Overview
