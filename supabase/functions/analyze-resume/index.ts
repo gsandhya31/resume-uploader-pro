@@ -118,12 +118,23 @@ Return ONLY valid JSON with this EXACT structure:
 
 CRITICAL RULES:
 - A skill can ONLY appear in ONE category (matched OR missing, not both)
+- Priority order for placement:
+  1. If skill is in resume with ANY evidence → goes to matchedSkills (even if weak)
+  2. If skill is NOT in resume at all → goes to missingSkills only
 - If a skill is weakly represented, it goes in matchedSkills with "isWeak": true
+- A skill CANNOT be both in matchedSkills and missingSkills simultaneously
+- Before finalizing output, check for duplicates across all categories and remove them
 - Provide specific evidence for ALL matched skills (quote directly from resume)
 - Deduplicate skills (if "Python" and "Python programming" both appear, use "Python" once)
 - Use consistent casing (prefer capitalization from JD when available)
 - Keep evidence quotes under 100 characters
-- Weakness reasons should be specific and actionable`;
+- Weakness reasons should be specific and actionable
+
+DEDUPLICATION CHECK:
+Before returning the JSON, verify:
+1. No skill appears in both matchedSkills and missingSkills.mustHave
+2. No skill appears in both matchedSkills and missingSkills.optional
+3. No skill appears twice in matchedSkills with different isWeak values`;
 
 serve(async (req) => {
   // Handle CORS Preflight
@@ -233,16 +244,48 @@ Follow the output JSON structure exactly.
       const strongSkills = result.matchedSkills.filter(s => !s.isWeak);
       const weakSkills = result.matchedSkills.filter(s => s.isWeak);
       
+      // POST-PROCESSING: Remove duplicates across categories
+      // Rule: If a skill is in matchedSkills (even weak), remove it from missingSkills
+      const matchedSkillNames = new Set(
+        result.matchedSkills.map(s => s.skill.toLowerCase())
+      );
+      
+      // Filter out any missing skills that are actually matched
+      const cleanedMustHave = result.missingSkills.mustHave.filter(
+        skill => !matchedSkillNames.has(skill.toLowerCase())
+      );
+      const cleanedOptional = result.missingSkills.optional.filter(
+        skill => !matchedSkillNames.has(skill.toLowerCase())
+      );
+      
+      // Deduplicate within matchedSkills (remove duplicates with different isWeak values)
+      const deduplicatedMatched = [];
+      const seenSkills = new Set();
+      for (const skill of result.matchedSkills) {
+        const skillLower = skill.skill.toLowerCase();
+        if (!seenSkills.has(skillLower)) {
+          deduplicatedMatched.push(skill);
+          seenSkills.add(skillLower);
+        }
+      }
+      
+      // Re-separate after deduplication
+      const finalStrongSkills = deduplicatedMatched.filter(s => !s.isWeak);
+      const finalWeakSkills = deduplicatedMatched.filter(s => s.isWeak);
+      
       // Transform for frontend
       const transformedResult = {
-        matchedSkills: strongSkills,
-        weakSkills: weakSkills,
-        missingSkills: result.missingSkills,
+        matchedSkills: finalStrongSkills,
+        weakSkills: finalWeakSkills,
+        missingSkills: {
+          mustHave: cleanedMustHave,
+          optional: cleanedOptional
+        },
         summary: {
-          totalMatched: strongSkills.length,
-          totalWeak: weakSkills.length,
-          totalMissingMustHave: result.missingSkills.mustHave.length,
-          totalMissingOptional: result.missingSkills.optional.length
+          totalMatched: finalStrongSkills.length,
+          totalWeak: finalWeakSkills.length,
+          totalMissingMustHave: cleanedMustHave.length,
+          totalMissingOptional: cleanedOptional.length
         }
       };
       
