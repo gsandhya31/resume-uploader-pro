@@ -115,7 +115,7 @@ serve(async (req) => {
 
   try {
     const { resumeText, jobDescription, companyName } = await req.json();
-    const MODEL = "gpt-4o-mini";
+    const MODEL = "gpt-4o";
 
     // Validate inputs
     if (!resumeText || !jobDescription) {
