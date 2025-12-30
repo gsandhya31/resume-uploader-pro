@@ -240,28 +240,37 @@ Follow the output JSON structure exactly.
         };
       }
       
+      // Define types for matched skills
+      interface MatchedSkill {
+        skill: string;
+        confidence: string;
+        evidence: string;
+        isWeak: boolean;
+        weaknessReason?: string;
+      }
+      
       // Separate weak skills for easier frontend handling
-      const strongSkills = result.matchedSkills.filter(s => !s.isWeak);
-      const weakSkills = result.matchedSkills.filter(s => s.isWeak);
+      const strongSkills = result.matchedSkills.filter((s: MatchedSkill) => !s.isWeak);
+      const weakSkills = result.matchedSkills.filter((s: MatchedSkill) => s.isWeak);
       
       // POST-PROCESSING: Remove duplicates across categories
       // Rule: If a skill is in matchedSkills (even weak), remove it from missingSkills
-      const matchedSkillNames = new Set(
-        result.matchedSkills.map(s => s.skill.toLowerCase())
+      const matchedSkillNames = new Set<string>(
+        result.matchedSkills.map((s: MatchedSkill) => s.skill.toLowerCase())
       );
       
       // Filter out any missing skills that are actually matched
       const cleanedMustHave = result.missingSkills.mustHave.filter(
-        skill => !matchedSkillNames.has(skill.toLowerCase())
+        (skill: string) => !matchedSkillNames.has(skill.toLowerCase())
       );
       const cleanedOptional = result.missingSkills.optional.filter(
-        skill => !matchedSkillNames.has(skill.toLowerCase())
+        (skill: string) => !matchedSkillNames.has(skill.toLowerCase())
       );
       
       // Deduplicate within matchedSkills (remove duplicates with different isWeak values)
-      const deduplicatedMatched = [];
-      const seenSkills = new Set();
-      for (const skill of result.matchedSkills) {
+      const deduplicatedMatched: MatchedSkill[] = [];
+      const seenSkills = new Set<string>();
+      for (const skill of result.matchedSkills as MatchedSkill[]) {
         const skillLower = skill.skill.toLowerCase();
         if (!seenSkills.has(skillLower)) {
           deduplicatedMatched.push(skill);
@@ -270,8 +279,8 @@ Follow the output JSON structure exactly.
       }
       
       // Re-separate after deduplication
-      const finalStrongSkills = deduplicatedMatched.filter(s => !s.isWeak);
-      const finalWeakSkills = deduplicatedMatched.filter(s => s.isWeak);
+      const finalStrongSkills = deduplicatedMatched.filter((s: MatchedSkill) => !s.isWeak);
+      const finalWeakSkills = deduplicatedMatched.filter((s: MatchedSkill) => s.isWeak);
       
       // Transform for frontend
       const transformedResult = {
@@ -303,11 +312,12 @@ Follow the output JSON structure exactly.
       
     } catch (parseError) {
       console.error("Parse error:", parseError);
+      const errorMessage = parseError instanceof Error ? parseError.message : "Unknown parse error";
       return new Response(
         JSON.stringify({ 
           error: "Failed to parse AI response", 
           raw: content.substring(0, 500), // First 500 chars for debugging
-          details: parseError.message 
+          details: errorMessage 
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

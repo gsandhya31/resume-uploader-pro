@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import FeedbackSection from "@/components/FeedbackSection";
 
 const MIN_JD_LENGTH = 100;
+const MAX_JD_LENGTH = 10000;
 
 interface TokenUsage {
   input: number;
@@ -50,7 +51,8 @@ const Index = () => {
 
   const isResumeUploaded = resumeText.length > 0;
   const isJdValid = jobDescription.length >= MIN_JD_LENGTH;
-  const canAnalyze = isResumeUploaded && isJdValid && !isAnalyzing;
+  const isJdTooLong = jobDescription.length > MAX_JD_LENGTH;
+  const canAnalyze = isResumeUploaded && isJdValid && !isJdTooLong && !isAnalyzing;
 
   const handleAnalyze = async () => {
     console.log("Request sent: Starting analysis...");
@@ -165,8 +167,8 @@ const Index = () => {
               className="min-h-[200px] resize-y text-sm"
             />
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                {jobDescription.length} characters
+              <span className={isJdTooLong ? "text-destructive font-medium" : "text-muted-foreground"}>
+                {jobDescription.length.toLocaleString()} / {MAX_JD_LENGTH.toLocaleString()} characters
               </span>
               {jobDescription.length > 0 && !isJdValid && (
                 <span className="text-destructive">
@@ -174,6 +176,11 @@ const Index = () => {
                 </span>
               )}
             </div>
+            {isJdTooLong && (
+              <p className="text-destructive text-sm">
+                Text is too long. Please reduce to under {MAX_JD_LENGTH.toLocaleString()} characters to proceed.
+              </p>
+            )}
           </div>
         </div>
 
