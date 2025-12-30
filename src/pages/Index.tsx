@@ -3,10 +3,47 @@ import { ResumeUpload } from "@/components/ResumeUpload";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileSearch, Sparkles, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
+import { FileSearch, Sparkles, Loader2, CheckCircle2, AlertTriangle, Zap } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import FeedbackSection from "@/components/FeedbackSection";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+const SAMPLE_RESUME = `John Doe
+Senior Product Manager
+
+EXPERIENCE:
+Product Manager, TechCorp (2020-2024)
+- Led cross-functional team of 12 engineers and designers
+- Built AI-powered customer support chatbot serving 50K users
+- Reduced response time by 60% using React.js and Python APIs
+- Managed Agile sprints and stakeholder communication
+- Used SQL for data analysis and reporting
+
+Associate Product Manager, StartupXYZ (2018-2020) 
+- Worked with AWS services for cloud deployment
+- Collaborated with engineering on feature development
+- Conducted user research and A/B testing
+
+SKILLS:
+Product Management, Agile Methodology, SQL, Python, React, User Research, Data Analysis, Stakeholder Management
+
+EDUCATION:
+MBA, Stanford University (2018)`;
+
+const SAMPLE_JOB_DESCRIPTION = `Senior Product Manager needed.
+
+Required Technical Skills:
+SQL for data querying.
+Experience with React.js for frontend.
+Knowledge of Docker for containerization.
+Agile Methodology.
+5+ years product management experience.
+
+Nice to Have:
+Kubernetes
+GraphQL
+TypeScript`;
 
 const MIN_JD_LENGTH = 100;
 const MAX_JD_LENGTH = 10000;
@@ -140,7 +177,7 @@ const Index = () => {
       {/* Main Content */}
       <main className="container max-w-4xl mx-auto px-4 py-12">
         {/* Resume Upload Section */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-6">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
             Upload Your Resume
           </h2>
@@ -148,6 +185,33 @@ const Index = () => {
             Start by uploading your resume in PDF format. We'll extract the text
             to analyze it against job descriptions.
           </p>
+        </div>
+
+        {/* Try with Sample Button */}
+        <div className="text-center mb-10">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setResumeText(SAMPLE_RESUME);
+                  setJobDescription(SAMPLE_JOB_DESCRIPTION);
+                  toast({
+                    title: "Sample data loaded ✓",
+                    description: "Resume and job description filled with example data",
+                  });
+                }}
+                className="gap-2"
+              >
+                <Zap className="w-4 h-4" />
+                Try with Sample Data
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>See how the analyzer works with example data</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         <ResumeUpload onTextExtracted={setResumeText} />
