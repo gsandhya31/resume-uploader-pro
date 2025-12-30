@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Upload, FileText, X, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -11,15 +11,36 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 interface ResumeUploadProps {
   onTextExtracted?: (text: string) => void;
+  externalResumeText?: string;
 }
 
-export function ResumeUpload({ onTextExtracted }: ResumeUploadProps) {
+export function ResumeUpload({ onTextExtracted, externalResumeText }: ResumeUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [resumeText, setResumeText] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isSampleData, setIsSampleData] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Sync with external resume text (for sample data)
+  useEffect(() => {
+    if (externalResumeText !== undefined) {
+      if (externalResumeText && externalResumeText !== resumeText) {
+        setResumeText(externalResumeText);
+        setIsSampleData(true);
+        setFile(null); // Clear any uploaded file when using sample data
+      } else if (externalResumeText === "" && resumeText !== "") {
+        // Clear was triggered
+        setResumeText("");
+        setFile(null);
+        setIsSampleData(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
+    }
+  }, [externalResumeText]);
 
   const validateFile = (file: File): string | null => {
     if (file.type !== "application/pdf") {
@@ -62,6 +83,7 @@ export function ResumeUpload({ onTextExtracted }: ResumeUploadProps) {
 
       setFile(selectedFile);
       setIsProcessing(true);
+      setIsSampleData(false);
 
       try {
         const text = await extractTextFromPDF(selectedFile);
@@ -122,6 +144,7 @@ export function ResumeUpload({ onTextExtracted }: ResumeUploadProps) {
   const handleRemove = useCallback(() => {
     setFile(null);
     setResumeText("");
+    setIsSampleData(false);
     onTextExtracted?.("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -131,6 +154,8 @@ export function ResumeUpload({ onTextExtracted }: ResumeUploadProps) {
   const handleButtonClick = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
+
+  const hasContent = file || (resumeText && isSampleData);
 
   return (
     <div className="w-full max-w-xl mx-auto">
@@ -142,7 +167,7 @@ export function ResumeUpload({ onTextExtracted }: ResumeUploadProps) {
         className="hidden"
       />
 
-      {!file ? (
+      {!hasContent ? (
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -215,10 +240,15 @@ export function ResumeUpload({ onTextExtracted }: ResumeUploadProps) {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">
-                      {file.name}
+                      {isSampleData ? "Sample Resume" : file?.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {(file.size / 1024).toFixed(1)} KB
+                      {isSampleData 
+                        ? "Sample data loaded" 
+                        : file 
+                          ? `${(file.size / 1024).toFixed(1)} KB`
+                          : ""
+                      }
                     </p>
                   </div>
                 </div>
@@ -235,14 +265,14 @@ export function ResumeUpload({ onTextExtracted }: ResumeUploadProps) {
               {resumeText && (
                 <div className="mt-2 p-4 rounded-lg bg-muted/50 border border-border">
                   <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
-                    Extracted Text Preview
+                    {isSampleData ? "Sample Resume Preview" : "Extracted Text Preview"}
                   </p>
                   <p className="text-sm text-foreground line-clamp-4 whitespace-pre-wrap">
                     {resumeText.slice(0, 500)}
                     {resumeText.length > 500 && "..."}
                   </p>
                   <p className="text-xs text-muted-foreground mt-2">
-                    {resumeText.length.toLocaleString()} characters extracted
+                    {resumeText.length.toLocaleString()} characters {isSampleData ? "in sample" : "extracted"}
                   </p>
                 </div>
               )}

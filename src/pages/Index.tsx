@@ -3,7 +3,7 @@ import { ResumeUpload } from "@/components/ResumeUpload";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileSearch, Sparkles, Loader2, CheckCircle2, AlertTriangle, Zap } from "lucide-react";
+import { FileSearch, Sparkles, Loader2, CheckCircle2, AlertTriangle, Zap, RotateCcw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import FeedbackSection from "@/components/FeedbackSection";
@@ -187,8 +187,8 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Try with Sample Button */}
-        <div className="text-center mb-10">
+        {/* Try with Sample & Clear All Buttons */}
+        <div className="flex items-center justify-center gap-3 mb-10">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -212,9 +212,29 @@ const Index = () => {
               <p>See how the analyzer works with example data</p>
             </TooltipContent>
           </Tooltip>
+
+          {(resumeText || jobDescription) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setResumeText("");
+                setJobDescription("");
+                setAnalysisResult(null);
+                toast({
+                  title: "Fields cleared",
+                  description: "Resume and job description have been reset",
+                });
+              }}
+              className="gap-2 text-muted-foreground hover:text-destructive"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Clear All
+            </Button>
+          )}
         </div>
 
-        <ResumeUpload onTextExtracted={setResumeText} />
+        <ResumeUpload onTextExtracted={setResumeText} externalResumeText={resumeText} />
 
         {/* Status indicator */}
         {resumeText && (
