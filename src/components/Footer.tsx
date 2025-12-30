@@ -1,4 +1,8 @@
+declare const __BUILD_DATE__: string;
+
 const Footer = () => {
+  const buildDate = __BUILD_DATE__;
+
   return (
     <footer className="py-6 mt-auto">
       <p className="text-sm text-muted-foreground text-center">
@@ -11,6 +15,7 @@ const Footer = () => {
         >
           sandhya
         </a>
+        {" "}| last updated: {buildDate}
       </p>
     </footer>
   );
