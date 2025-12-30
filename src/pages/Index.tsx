@@ -17,9 +17,23 @@ interface TokenUsage {
   total: number;
 }
 
+interface MatchedSkill {
+  skill: string;
+  confidence: string;
+  evidence: string;
+  isWeak: boolean;
+  weaknessReason?: string;
+}
+
+interface MissingSkills {
+  mustHave: string[];
+  optional: string[];
+}
+
 interface AnalysisResult {
-  matchedSkills: string[];
-  missingSkills: string[];
+  matchedSkills: MatchedSkill[];
+  weakSkills?: MatchedSkill[];
+  missingSkills: MissingSkills;
   usage?: TokenUsage;
 }
 
@@ -88,7 +102,7 @@ const Index = () => {
       setAnalysisResult(data);
       toast({
         title: "Analysis Complete",
-        description: `Found ${data.matchedSkills?.length || 0} matched skills, ${data.missingSkills?.length || 0} missing skills`,
+        description: `Found ${data.matchedSkills?.length || 0} matched skills, ${data.missingSkills?.mustHave?.length || 0} missing skills`,
       });
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -238,9 +252,9 @@ const Index = () => {
                 <CardContent>
                   {analysisResult.matchedSkills.length > 0 ? (
                     <ol className="list-decimal list-inside space-y-2 text-foreground">
-                      {analysisResult.matchedSkills.map((skill, index) => (
+                      {analysisResult.matchedSkills.map((item, index) => (
                         <li key={index} className="text-sm">
-                          {skill}
+                          {item.skill}
                         </li>
                       ))}
                     </ol>
@@ -261,9 +275,9 @@ const Index = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {analysisResult.missingSkills && analysisResult.missingSkills.length > 0 ? (
+                  {analysisResult.missingSkills?.mustHave && analysisResult.missingSkills.mustHave.length > 0 ? (
                     <ol className="list-decimal list-inside space-y-2 text-foreground">
-                      {analysisResult.missingSkills.map((skill, index) => (
+                      {analysisResult.missingSkills.mustHave.map((skill, index) => (
                         <li key={index} className="text-sm">
                           {skill}
                         </li>
